@@ -1,0 +1,35 @@
+{
+  "name": "gitlab-letsencrypt",
+  "version": "1.0.0",
+  "description": "Generate a Let's Encrypt certificate for GitLab.com hosted pages",
+  "main": "index.js",
+  "dependencies": {
+    "bluebird": "3.4.1",
+    "letiny-core": "1.0.5",
+    "ms": "0.7.1",
+    "read": "1.0.7",
+    "request-promise": "4.0.0",
+    "xtend": "4.0.1",
+    "yargs": "4.8.1"
+  },
+  "devDependencies": {
+    "eslint": "3.1.0"
+  },
+  "scripts": {
+    "test": "eslint ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rolodato/gitlab-letsencrypt.git"
+  },
+  "keywords": [
+    "letsencrypt",
+    "gitlab"
+  ],
+  "author": "Rodrigo López Dato <rolodato@rolodato.com>",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/rolodato/gitlab-letsencrypt/issues"
+  },
+  "homepage": "https://github.com/rolodato/gitlab-letsencrypt#readme"
+}
