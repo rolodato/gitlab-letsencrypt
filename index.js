@@ -1,3 +1,5 @@
+#! /usr/bin/env node
+
 const Promise = require('bluebird');
 const readInput = Promise.promisify(require('read'));
 const argv = require('yargs').argv;

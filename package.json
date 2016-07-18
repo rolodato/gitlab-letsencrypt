@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "Generate a Let's Encrypt certificate for GitLab.com hosted pages",
   "main": "index.js",
+  "bin": {
+    "gitlab-le": "./index.js"
+  },
   "dependencies": {
     "bluebird": "3.4.1",
     "letiny-core": "1.0.5",
