@@ -6,7 +6,7 @@ const getCertificate = require('./lib.js');
 
 const read = (options) => () => {
     const validator = options.validator ? options.validator : v => v && v.length > 0;
-    const argument = argv[options.argument];
+    const argument = typeof argv[options.argument] === 'string' ? argv[options.argument] : undefined;
     const resultPromise = argument ? Promise.resolve(argument) : readInput(options);
     return resultPromise.then(value => {
         if (validator(value)) {
