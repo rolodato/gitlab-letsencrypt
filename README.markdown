@@ -20,7 +20,7 @@ or as part of a script.
 Any omitted parameters will be prompted for interactively:
 
 ```
-node gitlab-le \
+gitlab-le \
 --email      example@example.com     `# Let's Encrypt email address` \
 --domain     example.com             `# Domain that the cert will be issued for, e.g. example.com` \
 --repository gitlab_user/gitlab_repo `# Namespaced repository identifier, i.e. gitlab_username/repo_name` \
