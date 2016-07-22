@@ -28,21 +28,6 @@ const pollUntilDeployed = (url, expectedContent, timeoutMs = 15 * 1000, retries 
     }
 };
 
-var certCache = {};
-const certStore = {
-    set: function (hostname, certs, cb) {
-        certCache[hostname] = certs;
-        cb(null);
-    }, get: function (hostname, cb) {
-        cb(null, certCache[hostname]);
-    }, remove: function (hostname, cb) {
-        delete certCache[hostname];
-        cb(null);
-    }
-};
-
-module.exports = certStore;
-
 module.exports = (options) => {
     const gitlabRequest = request.defaults({
         headers: { 'PRIVATE-TOKEN': options.token },
