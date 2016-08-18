@@ -59,7 +59,7 @@ readSequential(inputs)
         return getCertificate(options).then(certs => {
             console.log(`\nSuccess! Go to https://gitlab.com/${options.repository}/pages and create/update a domain with the following settings:\n`);
             console.log(`Domain: ${options.domain}\n`);
-            console.log(`Certificate (PEM):\n${certs.cert}\n`);
+            console.log(`Certificate (PEM):\n${certs.cert}\n${certs.ca}\n`);
             console.log(`Key (PEM):\n${certs.key}`);
         });
     })
