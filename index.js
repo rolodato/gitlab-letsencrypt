@@ -57,10 +57,11 @@ const inputs = [
 readSequential(inputs)
     .then(options => {
         return getCertificate(options).then(certs => {
+            if(!certs) return Promise.reject("Could not get certs. Check previous errors");
             console.log(`\nSuccess! Go to https://gitlab.com/${options.repository}/pages and create/update a domain with the following settings:\n`);
             console.log(`Domain: ${options.domain}\n`);
             console.log(`Certificate (PEM):\n${certs.cert}\n`);
             console.log(`Key (PEM):\n${certs.key}`);
         });
     })
-    .catch(err => console.error(err.detail || ''));
+    .catch(err => console.error(err.detail || err.message || 'There was an error executing. Aborting'));

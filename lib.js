@@ -108,5 +108,7 @@ module.exports = (options) => {
                     }
                 });
             });
+        }).catch((error)=> {
+          console.error(`ERROR: ${error.detail || error.message || JSON.stringify(error)}`);
         });
 };
