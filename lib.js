@@ -79,10 +79,8 @@ module.exports = (options) => {
             }
         }));
     };
-    console.log("Starting...this can take a couple of minutes");
     return Promise.join(getUrls, generateRsa(), generateRsa(), getRepository(options.repository),
         (urls, accountKp, domainKp, repo) => {
-            console.log("Preparations ready, contacting let's encrypt and uploading challenge");
             return LeCore.registerNewAccountAsync({
                 newRegUrl: urls.newReg,
                 email: options.email,
