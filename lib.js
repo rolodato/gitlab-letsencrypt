@@ -37,10 +37,7 @@ module.exports = (options) => {
 
     const getRepository = (name) => {
         return gitlabRequest.get({
-            url: '/projects'
-        }).then(projects => {
-            return projects.find(p => p.path_with_namespace === name)
-                || Promise.reject(`Could not find repository ${name}`);
+            url: `/projects/${name.replace('/','%2F')}`
         });
     };
 
@@ -67,7 +64,6 @@ module.exports = (options) => {
             }
         }));
     };
-
     return Promise.join(getUrls, generateRsa(), generateRsa(), getRepository(options.repository),
         (urls, accountKp, domainKp, repo) => {
             return LeCore.registerNewAccountAsync({

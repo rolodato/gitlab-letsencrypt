@@ -63,4 +63,4 @@ readSequential(inputs)
             console.log(`Key (PEM):\n${certs.key}`);
         });
     })
-    .catch(err => console.error(err.detail || ''));
+    .catch(err => console.error(err.detail || err.message || err));
