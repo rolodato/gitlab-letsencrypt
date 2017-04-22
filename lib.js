@@ -48,7 +48,7 @@ module.exports = (options) => {
             body: {
                 file_path: `public/.well-known/acme-challenge/${key}`,
                 commit_message: 'Automated Let\'s Encrypt renewal',
-                branch_name: 'master',
+                branch_name: repo.default_branch,
                 content: value
             }
         })).return([`http://${domain}/.well-known/acme-challenge/${key}`, value]);
@@ -60,7 +60,7 @@ module.exports = (options) => {
             body: {
                 file_path: `public/.well-known/acme-challenge/${key}`,
                 commit_message: 'Automated Let\'s Encrypt renewal',
-                branch_name: 'master'
+                branch_name: repo.default_branch
             }
         }));
     };
