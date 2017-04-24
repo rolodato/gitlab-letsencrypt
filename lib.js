@@ -56,7 +56,7 @@ module.exports = (options) => {
 
     const deleteChallenges = (key, repo) => {
         return Promise.resolve(gitlabRequest.delete({
-            url: `projects/${repo.id}/repository/files`,
+            url: `/projects/${repo.id}/repository/files`,
             body: {
                 file_path: `public/.well-known/acme-challenge/${key}`,
                 commit_message: 'Automated Let\'s Encrypt renewal',
