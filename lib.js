@@ -63,6 +63,9 @@ module.exports = (options) => {
             }
         }));
     };
+
+    let deleteChallengesPromise = null;
+
     return Promise.join(getUrls, generateRsa(), generateRsa(), getRepository(options.repository),
         (urls, accountKp, domainKp, repo) => {
             return ACME.registerNewAccountAsync({
@@ -79,15 +82,16 @@ module.exports = (options) => {
                     newCertUrl: urls.newCert,
                     domainKeypair: domainKp,
                     accountKeypair: accountKp,
-                    domains: [options.domain],
+                    domains: options.domain,
                     setChallenge: (hostname, key, value, cb) => {
-                        return uploadChallenge(key, value, repo, options.domain)
+                        return Promise.resolve(deleteChallengesPromise)
+                            .then(() => uploadChallenge(key, value, repo, hostname))
                             .tap(res => console.log(`Uploaded challenge file, waiting for it to be available at ${res[0]}`))
                             .spread(pollUntilDeployed)
                             .asCallback(cb);
                     },
                     removeChallenge: (hostname, key, cb) => {
-                        return deleteChallenges(key, repo).asCallback(cb);
+                        return (deleteChallengesPromise = deleteChallenges(key, repo)).asCallback(cb);
                     }
                 });
             });
