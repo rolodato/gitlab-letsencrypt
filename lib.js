@@ -1,13 +1,12 @@
 'use strict';
 const Promise = require('bluebird');
-const LeTinyCore = require('letiny-core');
-const LeCore = Promise.promisifyAll(LeTinyCore);
-const LeCrypto = Promise.promisifyAll(LeCore.leCrypto);
+const ACME = Promise.promisifyAll(require('le-acme-core').ACME.create());
+const RSA = Promise.promisifyAll(require('rsa-compat').RSA);
 const ms = require('ms');
 const request = require('request-promise');
 
-const getUrls = LeCore.getAcmeUrlsAsync(LeCore.productionServerUrl);
-const generateRsa = () => LeCrypto.generateRsaKeypairAsync(2048, 65537);
+const getUrls = ACME.getAcmeUrlsAsync(ACME.productionServerUrl);
+const generateRsa = () => RSA.generateKeypairAsync(2048, 65537, {});
 
 const pollUntilDeployed = (url, expectedContent, timeoutMs = 15 * 1000, retries = 10) => {
     if (retries > 0) {
@@ -66,20 +65,20 @@ module.exports = (options) => {
     };
     return Promise.join(getUrls, generateRsa(), generateRsa(), getRepository(options.repository),
         (urls, accountKp, domainKp, repo) => {
-            return LeCore.registerNewAccountAsync({
+            return ACME.registerNewAccountAsync({
                 newRegUrl: urls.newReg,
                 email: options.email,
-                accountPrivateKeyPem: accountKp.privateKeyPem,
+                accountKeypair: accountKp,
                 agreeToTerms: (tosUrl, cb) => {
                     console.log(`By using Let's Encrypt, you are agreeing to the TOS at ${tosUrl}`);
                     cb(null, true);
                 }
             }).then(() => {
-                return LeCore.getCertificateAsync({
+                return ACME.getCertificateAsync({
                     newAuthzUrl: urls.newAuthz,
                     newCertUrl: urls.newCert,
-                    domainPrivateKeyPem: domainKp.privateKeyPem,
-                    accountPrivateKeyPem: accountKp.privateKeyPem,
+                    domainKeypair: domainKp,
+                    accountKeypair: accountKp,
                     domains: [options.domain],
                     setChallenge: (hostname, key, value, cb) => {
                         return uploadChallenge(key, value, repo, options.domain)
