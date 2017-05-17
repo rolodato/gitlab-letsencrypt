@@ -29,8 +29,6 @@ gitlab-le \
 
 ## Example
 
-<details>
-<summary>Expand this section for example usage and output.</summary>
 ```
 $ gitlab-le --email rolodato@example.com --repository example/example.gitlab.io --token ... --domain example.com
 By using Let's Encrypt, you are agreeing to the TOS at https://letsencrypt.org/documents/LE-SA-v1.0.1-July-27-2015.pdf
@@ -53,7 +51,6 @@ Key (PEM):
 ...
 -----END RSA PRIVATE KEY-----
 ```
-</details>
 
 ## Security
 
