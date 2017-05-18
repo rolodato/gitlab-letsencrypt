@@ -41,17 +41,29 @@ module.exports = (options) => {
         });
     };
 
-    const uploadChallenge = (key, value, repo, domain) => {
+    const uploadChallenge = (key, value, repo) => {
         // Need to bluebird-ify to use .asCallback()
-        return Promise.resolve(gitlabRequest.post({
-            url: `/projects/${repo.id}/repository/files`,
-            body: {
-                file_path: `public/.well-known/acme-challenge/${key}`,
-                commit_message: 'Automated Let\'s Encrypt renewal',
-                branch_name: 'master',
-                content: value
-            }
-        })).return([`http://${domain}/.well-known/acme-challenge/${key}`, value]);
+        if ( options.jekyll == "true" ) {
+        return Promise.resolve(gitlabRequest.put({
+              url: `/projects/${repo.id}/repository/files`,
+              body: {
+                  file_path: `${options.sitepath}/letsencrypt.html`,
+                  commit_message: 'Automated Let\'s Encrypt renewal',
+                  branch_name: 'master',
+                  content: `---\nlayout: null\npermalink: /.well-known/acme-challenge/${key}/\n---\n\n` + value
+              }
+          })).return([`http://${options.domain}/.well-known/acme-challenge/${key}/`, value]);
+        } else {
+          return Promise.resolve(gitlabRequest.post({
+              url: `/projects/${repo.id}/repository/files`,
+              body: {
+                  file_path: `public/.well-known/acme-challenge/${key}`,
+                  commit_message: 'Automated Let\'s Encrypt renewal',
+                  branch_name: 'master',
+                  content: value
+              }
+          })).return([`http://${options.domain}/.well-known/acme-challenge/${key}`, value]);
+      }
     };
 
     const deleteChallenges = (key, repo) => {
@@ -82,7 +94,7 @@ module.exports = (options) => {
                     accountPrivateKeyPem: accountKp.privateKeyPem,
                     domains: [options.domain],
                     setChallenge: (hostname, key, value, cb) => {
-                        return uploadChallenge(key, value, repo, options.domain)
+                        return uploadChallenge(key, value, repo)
                             .tap(res => console.log(`Uploaded challenge file, waiting for it to be available at ${res[0]}`))
                             .spread(pollUntilDeployed)
                             .asCallback(cb);

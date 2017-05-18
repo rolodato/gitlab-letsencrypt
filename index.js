@@ -48,6 +48,14 @@ const inputs = [
         argument: 'repository'
     }),
     read({
+        prompt: 'Jekyll enable, type true if yes',
+        argument: 'jekyll'
+    }),
+    read({
+        prompt: 'Jekyll path, e.g. site, press Enter if no Jekyll',
+        argument: 'sitepath'
+    }),
+    read({
         prompt: 'GitLab personal access token (https://gitlab.com/profile/personal_access_tokens):',
         argument: 'token',
         silent: true
