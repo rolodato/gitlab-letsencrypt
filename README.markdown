@@ -21,25 +21,25 @@ Any omitted parameters will be prompted for interactively:
 
 ```sh
 gitlab-le \
---email      example@example.com     `# Let's Encrypt email address` \
---domain     example.com             `# Domain that the cert will be issued for` \
---repository gitlab_user/gitlab_repo `# Namespaced repository identifier` \
---token      ...                     `# GitLab personal access token, see https://gitlab.com/profile/personal_access_tokens`
+--email      example@example.com         `# Let's Encrypt email address` \
+--domain     example.com www.example.com `# Domain(s) that the cert will be issued for (separated by spaces)` \
+--repository gitlab_user/gitlab_repo     `# Namespaced repository identifier` \
+--token      ...                         `# GitLab personal access token, see https://gitlab.com/profile/personal_access_tokens`
 ```
 
 ## Example
 
 ```
-$ gitlab-le --email rolodato@example.com --repository example/example.gitlab.io --token ... --domain example.com
+$ gitlab-le --email rolodato@example.com --repository example/example.gitlab.io --token ... --domain example.com www.example.com
 By using Let's Encrypt, you are agreeing to the TOS at https://letsencrypt.org/documents/LE-SA-v1.0.1-July-27-2015.pdf
 Uploaded challenge file, waiting for it to be available at http://example.com/.well-known/acme-challenge/lLqa_7sLPQzz102c2KIc3pqMevUyM_Ru92whx6w1C-4
 Could not find challenge file. Retrying in 15s...
 Could not find challenge file. Retrying in 30s...
 Could not find challenge file. Retrying in 1m...
 
-Success! Go to https://gitlab.com/example/example.gitlab.io/pages and create/update a domain with the following settings:
+Success! Go to https://gitlab.com/example/example.gitlab.io/pages and create/re-create domain(s) with the following settings:
 
-Domain: example.com
+Domain(s): example.com, www.example.com
 
 Certificate (PEM):
 -----BEGIN CERTIFICATE-----

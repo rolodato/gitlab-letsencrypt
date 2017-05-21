@@ -8,7 +8,7 @@
   },
   "dependencies": {
     "bluebird": "3.4.1",
-    "letiny-core": "1.0.5",
+    "le-acme-core": "^2.0.9",
     "ms": "0.7.1",
     "read": "1.0.7",
     "request": "2.81.0",
