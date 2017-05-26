@@ -11,4 +11,4 @@ module.exports = (args) => {
         console.error(err.detail || err.message || err);
         process.exit(1);
     });
-}
+};

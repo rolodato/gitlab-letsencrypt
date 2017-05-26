@@ -1,7 +1,6 @@
 'use strict';
 
 require('dotenv-safe').load();
-const getCertificate = require('../lib');
 
 const options = {
     staging: true,
