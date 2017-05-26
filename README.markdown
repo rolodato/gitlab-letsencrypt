@@ -45,10 +45,21 @@ Key (PEM):
 -----END RSA PRIVATE KEY-----
 ```
 
+## What this does
+
+1. Requests a challenge from Let's Encrypt using the provided email address for the specified domains. One challenge file is generated per domain
+2. Each challenge file is uploaded to your GitLab repository using GitLab's API, which commits to your repository
+3. The challenge URL is repeatedly polled until the challenge file is made available. GitLab Pages take a while to update after changes are committed
+4. If Let's Encrypt was able to verify the challenge file, a certificate for that domain is issued
+5. Each challenge file is removed from your GitLab repository by committing to it through the GitLab API
+
 ## Security
 
 `gitlab-le` does not save or log anything to disk.
 The GitLab access token is used to upload the challenge file to your repository and to delete it once the challenge is completed.
+
+Even though challenge files are deleted from your repository after a challenge file is deleted, they are still visible in the repository's commit history.
+In any case, challenge files do not have any value after a challenge has been completed, so this is not a security risk.
 
 ## Motivation
 
