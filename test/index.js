@@ -12,8 +12,11 @@ const options = {
 };
 
 getCertificate(options).then(certs => {
-    console.log(`Successfully issued a staging certificate for ${process.env.GITLAB_LE_DOMAIN}`);
+    console.log(`\nSuccess! Go to https://gitlab.com/${certs.repository}/pages and create/re-create domain(s) with the following settings:\n`);
+    console.log(`Domain(s): ${certs.domains.join(', ')}\n`);
+    console.log(`Certificate (PEM):\n${certs.cert}\n${certs.ca}\n`);
+    console.log(`Key (PEM):\n${certs.key}`);
 }).catch(err => {
-    console.error(err);
+    console.error(err.detail || err.message || err);
     process.exit(1);
 });

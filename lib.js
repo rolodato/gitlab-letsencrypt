@@ -4,6 +4,7 @@ const ACME = Promise.promisifyAll(require('le-acme-core').ACME.create());
 const RSA = Promise.promisifyAll(require('rsa-compat').RSA);
 const ms = require('ms');
 const request = require('request-promise');
+const xtend = require('xtend');
 
 const generateRsa = () => RSA.generateKeypairAsync(2048, 65537, {});
 
@@ -93,7 +94,7 @@ module.exports = (options) => {
                     removeChallenge: (hostname, key, cb) => {
                         return (deleteChallengesPromise = deleteChallenges(key, repo)).asCallback(cb);
                     }
-                });
+                }).then(cert => xtend(cert, { domains: options.domain, repository: options.repository }));
             });
         });
 };
