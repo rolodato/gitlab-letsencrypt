@@ -17,6 +17,7 @@
     "yargs": "8.0.1"
   },
   "devDependencies": {
+    "dotenv-safe": "4.0.4",
     "eslint": "3.1.0"
   },
   "scripts": {

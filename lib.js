@@ -5,7 +5,6 @@ const RSA = Promise.promisifyAll(require('rsa-compat').RSA);
 const ms = require('ms');
 const request = require('request-promise');
 
-const getUrls = ACME.getAcmeUrlsAsync(ACME.productionServerUrl);
 const generateRsa = () => RSA.generateKeypairAsync(2048, 65537, {});
 
 const pollUntilDeployed = (url, expectedContent, timeoutMs = 15 * 1000, retries = 10) => {
@@ -28,6 +27,7 @@ const pollUntilDeployed = (url, expectedContent, timeoutMs = 15 * 1000, retries 
 };
 
 module.exports = (options) => {
+    const getUrls = ACME.getAcmeUrlsAsync(options.staging ? ACME.stagingServerUrl : ACME.productionServerUrl);
     const gitlabRequest = request.defaults({
         headers: { 'PRIVATE-TOKEN': options.token },
         json: true,
