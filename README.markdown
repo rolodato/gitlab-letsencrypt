@@ -10,14 +10,7 @@ npm install -g gitlab-letsencrypt
 
 ## Usage
 
-`gitlab-le` can be used interactively:
-
-```sh
-gitlab-le
-```
-
-or as part of a script.
-Any omitted parameters will be prompted for interactively:
+All parameters are required:
 
 ```sh
 gitlab-le \
