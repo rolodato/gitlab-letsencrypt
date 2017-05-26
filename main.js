@@ -1,4 +1,5 @@
 'use strict';
+const getCertificate = require('./lib');
 
 module.exports = (args) => {
     return getCertificate(args).then(certs => {
