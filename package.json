@@ -21,7 +21,7 @@
     "eslint": "3.1.0"
   },
   "scripts": {
-    "test": "eslint ."
+    "test": "eslint . && cd test && node index.js"
   },
   "repository": {
     "type": "git",
