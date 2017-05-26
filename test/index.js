@@ -11,10 +11,4 @@ const options = {
     email: process.env.GITLAB_LE_EMAIL
 };
 
-getCertificate(options).then(certs => {
-    console.log(`Certificate (PEM):\n${certs.cert}\n${certs.ca}\n`);
-    console.log('Key (PEM): ...');
-}).catch(err => {
-    console.error(err.detail || err.message || err);
-    process.exit(1);
-});
+require('../main')(options);
