@@ -6,6 +6,7 @@ const ms = require('ms');
 const request = require('request-promise');
 const xtend = require('xtend');
 const pki = require('node-forge').pki;
+const path = require('path');
 
 const generateRsa = () => RSA.generateKeypairAsync(2048, 65537, {});
 
@@ -44,14 +45,16 @@ module.exports = (options) => {
     };
 
     const uploadChallenge = (key, value, repo, domain) => {
+        const challengeContent = options.jekyll ?
+                `---\nlayout: null\npermalink: /.well-known/acme-challenge/${key}\n---\n${value}` : value;
         // Need to bluebird-ify to use .asCallback()
         return Promise.resolve(gitlabRequest.post({
             url: `/projects/${repo.id}/repository/files`,
             body: {
-                file_path: `public/.well-known/acme-challenge/${key}`,
+                file_path: path.resolve('/', options.path, key),
                 commit_message: 'Automated Let\'s Encrypt renewal',
                 branch_name: repo.default_branch,
-                content: value
+                content: challengeContent
             }
         })).return([`http://${domain}/.well-known/acme-challenge/${key}`, value]);
     };
@@ -60,7 +63,7 @@ module.exports = (options) => {
         return Promise.resolve(gitlabRequest.delete({
             url: `/projects/${repo.id}/repository/files`,
             body: {
-                file_path: `public/.well-known/acme-challenge/${key}`,
+                file_path: path.resolve('/', options.path, key),
                 commit_message: 'Automated Let\'s Encrypt renewal',
                 branch_name: repo.default_branch
             }
