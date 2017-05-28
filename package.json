@@ -10,6 +10,7 @@
     "bluebird": "3.4.1",
     "le-acme-core": "https://git.daplie.com/rolodato/le-acme-core/repository/archive.tar.gz",
     "ms": "0.7.1",
+    "node-forge": "0.7.1",
     "read": "1.0.7",
     "request": "2.81.0",
     "request-promise": "4.2.0",

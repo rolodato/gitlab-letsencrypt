@@ -5,6 +5,7 @@ const RSA = Promise.promisifyAll(require('rsa-compat').RSA);
 const ms = require('ms');
 const request = require('request-promise');
 const xtend = require('xtend');
+const pki = require('node-forge').pki;
 
 const generateRsa = () => RSA.generateKeypairAsync(2048, 65537, {});
 
@@ -94,7 +95,11 @@ module.exports = (options) => {
                     removeChallenge: (hostname, key, cb) => {
                         return (deleteChallengesPromise = deleteChallenges(key, repo)).asCallback(cb);
                     }
-                }).then(cert => xtend(cert, { domains: options.domain, repository: options.repository }));
+                }).then(cert => xtend(cert, {
+                    domains: options.domain,
+                    repository: options.repository,
+                    notAfter: pki.certificateFromPem(cert.cert).validity.notAfter
+                }));
             });
         });
 };
