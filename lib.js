@@ -96,7 +96,7 @@ module.exports = (options) => {
                             .asCallback(cb);
                     },
                     removeChallenge: (hostname, key, cb) => {
-                        return (deleteChallengesPromise = deleteChallenges(key, repo)).asCallback(cb);
+                        return (deleteChallengesPromise = deleteChallenges(key, repo)).finally(() => cb(null));
                     }
                 }).then(cert => xtend(cert, {
                     domains: options.domain,
