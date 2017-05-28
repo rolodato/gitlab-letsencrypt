@@ -9,8 +9,7 @@ const pki = require('node-forge').pki;
 
 const generateRsa = () => RSA.generateKeypairAsync(2048, 65537, {});
 
-const maxRetries = 20;
-const pollUntilDeployed = (url, expectedContent, retries = maxRetries) => {
+const pollUntilDeployed = (url, expectedContent, timeoutMs = 30 * 1000, retries = 10) => {
     if (retries > 0) {
         return request.get({
             url: url,
@@ -20,10 +19,9 @@ const pollUntilDeployed = (url, expectedContent, retries = maxRetries) => {
                 return Promise.resolve();
             } else {
                 // GitLab CI usually takes 50-80 seconds to build
-                const timeoutMs = retries === maxRetries ? 50 * 1000 : 10 * 1000;
                 console.log(`Could not find challenge file. Retrying in ${ms(timeoutMs)}...`);
                 return Promise.delay(timeoutMs).then(() =>
-                    pollUntilDeployed(url, expectedContent, retries - 1));
+                    pollUntilDeployed(url, expectedContent, timeoutMs * 2, retries - 1));
             }
         });
     } else {
