@@ -41,6 +41,12 @@ module.exports = (options) => {
     const getRepository = (name) => {
         return gitlabRequest.get({
             url: `/projects/${name.replace('/','%2F')}`
+        }).then(result => {
+            if (typeof result.default_branch !== 'string') {
+                return Promise.reject('Could not determine the default branch of your repository. This usually happens when your GitLab API token is invalid.');
+            } else {
+                return result;
+            }
         });
     };
 
