@@ -57,7 +57,7 @@ module.exports = (options) => {
         return Promise.resolve(gitlabRequest.post({
             url: `/projects/${repo.id}/repository/files`,
             body: {
-                file_path: path.resolve('/', options.path, key),
+                file_path: path.posix.resolve('/', options.path, key),
                 commit_message: 'Automated Let\'s Encrypt renewal',
                 branch_name: repo.default_branch,
                 content: challengeContent
@@ -69,7 +69,7 @@ module.exports = (options) => {
         return Promise.resolve(gitlabRequest.delete({
             url: `/projects/${repo.id}/repository/files`,
             body: {
-                file_path: path.resolve('/', options.path, key),
+                file_path: path.posix.resolve('/', options.path, key),
                 commit_message: 'Automated Let\'s Encrypt renewal',
                 branch_name: repo.default_branch
             }
