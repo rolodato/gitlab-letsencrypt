@@ -80,4 +80,4 @@ However, GitLab does not provide a way to automatically renew certificates, so t
 ## Automation
 
 GitLab does not provide an API to update domains or certificates for a Page, so these must be updated manually through the UI.
-If you like this tool and want full automation (e.g. stick this in a cron job and forget about it), [let GitLab know](https://gitlab.com/pages/pages.gitlab.io/issues/23)!
+If you like this tool and want full automation (e.g. stick this in a cron job and forget about it), [let GitLab know](https://gitlab.com/gitlab-org/gitlab-ce/issues/23000)!
