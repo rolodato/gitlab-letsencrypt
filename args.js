@@ -20,6 +20,10 @@ module.exports = yargs
         describe: 'GitLab personal access token (https://gitlab.com/profile/personal_access_tokens)',
         type: 'string',
         demandOption: true
+    }).option('jekyll', {
+        describe: 'Upload challenge files with a Jekyll-compatible YAML front matter (see https://jekyllrb.com/docs/frontmatter)',
+        type: 'boolean',
+        default: false        
     }).option('middleman', {
         describe: 'Upload challenge files',
         type: 'boolean',
@@ -33,6 +37,7 @@ module.exports = yargs
         type: 'boolean',
         default: false
     }).example('$0 --domain example.com www.example.com --email rolodato@example.com --repository foo/example.gitlab.io --token abc123', 'Simple build where all files are served from public/ inside your repository')
+    .example('$0 --jekyll --path / --domain example.com --email rolodato@example.com --repository foo/example.gitlab.io --token abc123', 'Jekyll website that serves all valid files in your repository\'s root directory')
     .example('$0 --middleman --path / --domain example.com --email rolodato@example.com --repository foo/example.gitlab.io --token abc123', 'Middleman website that serves all valid files in your repository\'s root directory')
     .wrap(yargs.terminalWidth())
     .check(argv => {

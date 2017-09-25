@@ -17,6 +17,7 @@ gitlab-le \
 --repository gitlab_user/gitlab_repo     `# REQUIRED - Namespaced repository identifier` \
 --token      ...                         `# REQUIRED - GitLab personal access token, see https://gitlab.com/profile/personal_access_tokens` \
 --jekyll                                 `# OPTIONAL - Upload challenge files with a Jekyll-compatible YAML front matter` \
+--middleman                              `# OPTIONAL - Upload challenge files with a Middleman-compatible YAML front matter` \
 --path                                   `# OPTIONAL - Absolute path in your repository where challenge files should be uploaded`
 ```
 
