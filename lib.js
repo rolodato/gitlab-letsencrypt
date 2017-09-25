@@ -51,7 +51,8 @@ module.exports = (options) => {
     };
 
     const uploadChallenge = (key, value, repo, domain) => {
-        const challengeContent = options.middleman ?
+        const optionsSite = options.middleman ? middleman : jekyll 
+        const challengeContent = optionsSite ?
                 `---\nlayout: null\npermalink: /${key}\n---\n${value}` : value;
         // Need to bluebird-ify to use .asCallback()
         return Promise.resolve(gitlabRequest.post({
