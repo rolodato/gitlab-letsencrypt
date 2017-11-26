@@ -69,7 +69,7 @@ The staging environment has a virtually infinite rate limit for obtaining certif
 `gitlab-le` does not save or log anything to disk.
 The GitLab access token is used to upload the challenge file to your repository and to delete it once the challenge is completed.
 
-Even though challenge files are deleted from your repository after a challenge file is deleted, they are still visible in the repository's commit history.
+Even though challenge files are deleted from your repository after a challenge is completed, they are still visible in the repository's commit history.
 In any case, challenge files do not have any value after a challenge has been completed, so this is not a security risk.
 
 ## Motivation
