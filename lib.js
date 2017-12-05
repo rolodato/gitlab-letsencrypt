@@ -50,9 +50,9 @@ module.exports = (options) => {
         });
     };
 
-    const uploadChallenge = (key, value, repo, domain) => {
-        const challengeContent = options.jekyll ?
-                `---\nlayout: null\npermalink: /.well-known/acme-challenge/${key}\n---\n${value}` : value;
+    const uploadChallenge = (key, value, repo, domain) => { 
+        const challengeContent = options.middleman ?
+                `---\nlayout: null\npermalink: /${key}\n---\n${value}` : value;
         // Need to bluebird-ify to use .asCallback()
         return Promise.resolve(gitlabRequest.post({
             url: `/projects/${repo.id}/repository/files`,
@@ -62,7 +62,7 @@ module.exports = (options) => {
                 branch_name: repo.default_branch,
                 content: challengeContent
             }
-        })).return([`http://${domain}/.well-known/acme-challenge/${key}`, value]);
+        })).return([`http://${domain}/${key}`, value]);
     };
 
     const deleteChallenges = (key, repo) => {
