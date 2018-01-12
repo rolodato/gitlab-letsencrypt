@@ -3,7 +3,8 @@
 require('dotenv-safe').load();
 
 const options = {
-    staging: true,
+    auto: true,
+    staging: false,
     path: '/public/.well-known/acme-challenge',
     domain: process.env.GITLAB_LE_DOMAIN.split(','),
     repository: process.env.GITLAB_LE_REPOSITORY,

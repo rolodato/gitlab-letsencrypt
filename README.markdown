@@ -16,6 +16,8 @@ gitlab-le \
 --domain     example.com www.example.com `# REQUIRED - Domain(s) that the cert will be issued for (separated by spaces)` \
 --repository gitlab_user/gitlab_repo     `# REQUIRED - Namespaced repository identifier` \
 --token      ...                         `# REQUIRED - GitLab personal access token, see https://gitlab.com/profile/personal_access_tokens` \
+--gitlab     https://gitlab.example.com  `# OPTIONAL - Specify a GitLab instance` \
+--auto                                   `# OPTIONAL - Use GitLab API to set certificate` \
 --jekyll                                 `# OPTIONAL - Upload challenge files with a Jekyll-compatible YAML front matter` \
 --path                                   `# OPTIONAL - Absolute path in your repository where challenge files should be uploaded`
 ```

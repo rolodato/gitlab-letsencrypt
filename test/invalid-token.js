@@ -10,7 +10,8 @@ const options = {
     domain: process.env.GITLAB_LE_DOMAIN.split(','),
     repository: process.env.GITLAB_LE_REPOSITORY,
     token: 'lololol',
-    email: process.env.GITLAB_LE_EMAIL
+    email: process.env.GITLAB_LE_EMAIL,
+    gitlab: process.env.GITLAB_LE_GITLAB
 };
 
 require('../lib')(options)
