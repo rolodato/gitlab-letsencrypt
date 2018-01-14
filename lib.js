@@ -7,6 +7,7 @@ const request = require('request-promise');
 const xtend = require('xtend');
 const pki = require('node-forge').pki;
 const path = require('path');
+const { URL } = require('url');
 
 const generateRsa = () => RSA.generateKeypairAsync(2048, 65537, {});
 
@@ -31,29 +32,18 @@ const pollUntilDeployed = (url, expectedContent, timeoutMs = 30 * 1000, retries 
 };
 
 module.exports = (options) => {
-    const getUrls = ACME.getAcmeUrlsAsync(options.staging ? ACME.stagingServerUrl : ACME.productionServerUrl);
-    const gitlabBaseUrl = options.gitlab.replace(/\/+$/, '');
-    const gitlabRequestV3 = request.defaults({
-        headers: { 'PRIVATE-TOKEN': options.token },
-        json: true,
-        baseUrl: `${gitlabBaseUrl}/api/v3`
-    });
-    const gitlabRequestV4 = request.defaults({
+    const getUrls = ACME.getAcmeUrlsAsync(options.production ? ACME.productionServerUrl : ACME.stagingServerUrl);
+    const repoUrl = new URL(options.repository);
+    const gitlabBaseUrl = repoUrl.origin;
+    const gitlabRequest = request.defaults({
         headers: { 'PRIVATE-TOKEN': options.token },
         json: true,
         baseUrl: `${gitlabBaseUrl}/api/v4`
     });
-    const gitlabRequest = gitlabRequestV3;
 
     const getRepository = (name) => {
         return gitlabRequest.get({
-            url: `/projects/${name.replace('/','%2F')}`
-        }).then(result => {
-            if (typeof result.default_branch !== 'string') {
-                return Promise.reject('Could not determine the default branch of your repository. This usually happens when your GitLab API token is invalid.');
-            } else {
-                return result;
-            }
+            url: `/projects/${encodeURIComponent(name.replace('/', ''))}`
         });
     };
 
@@ -61,43 +51,45 @@ module.exports = (options) => {
         const challengeContent = options.jekyll ?
                 `---\nlayout: null\npermalink: /.well-known/acme-challenge/${key}\n---\n${value}` : value;
         // Need to bluebird-ify to use .asCallback()
+        const filePath = encodeURIComponent(path.posix.resolve('/', options.path, key));
         return Promise.resolve(gitlabRequest.post({
-            url: `/projects/${repo.id}/repository/files`,
+            url: `/projects/${repo.id}/repository/files/${filePath}`,
             body: {
-                file_path: path.posix.resolve('/', options.path, key),
                 commit_message: 'Automated Let\'s Encrypt renewal: add challenge',
-                branch_name: repo.default_branch,
-                content: challengeContent
+                branch: repo.default_branch,
+                content: challengeContent,
+                author_name: 'gitlab-le'
             }
         })).return([`http://${domain}/.well-known/acme-challenge/${key}`, value]);
     };
 
     const deleteChallenges = (key, repo) => {
+        const filePath = encodeURIComponent(path.posix.resolve('/', options.path, key));
         return Promise.resolve(gitlabRequest.delete({
-            url: `/projects/${repo.id}/repository/files`,
+            url: `/projects/${repo.id}/repository/files/${filePath}`,
             body: {
-                file_path: path.posix.resolve('/', options.path, key),
                 commit_message: 'Automated Let\'s Encrypt renewal: remove challenge',
-                branch_name: repo.default_branch
+                branch: repo.default_branch,
+                author_name: 'gitlab-le'
             }
         }));
     };
 
     const listPagesDomains = (repo) => {
-        return gitlabRequestV4.get({
+        return gitlabRequest.get({
             url: `/projects/${repo.id}/pages/domains`,
         });
     };
 
     const createPagesDomain = (repo, domain) => {
-        return gitlabRequestV4.post({
+        return gitlabRequest.post({
             url: `/projects/${repo.id}/pages/domains`,
             form: { domain: domain }
         });
     };
 
     const updatePagesDomainWithCertificate = (repo, domain, cert) => {
-        return gitlabRequestV4.put({
+        return gitlabRequest.put({
             url: `/projects/${repo.id}/pages/domains/${domain}`,
             form: {
                 domain: domain,
@@ -138,7 +130,7 @@ module.exports = (options) => {
 
     let deleteChallengesPromise = null;
 
-    return Promise.join(getUrls, generateRsa(), generateRsa(), getRepository(options.repository),
+    return Promise.join(getUrls, generateRsa(), generateRsa(), getRepository(repoUrl.pathname),
         (urls, accountKp, domainKp, repo) => {
             return createPagesDomains(repo).then(() => {
                 return ACME.registerNewAccountAsync({
@@ -160,7 +152,7 @@ module.exports = (options) => {
                     setChallenge: (hostname, key, value, cb) => {
                         return Promise.resolve(deleteChallengesPromise)
                             .then(() => uploadChallenge(key, value, repo, hostname))
-                            .tap(res => console.log(`Uploaded challenge file, waiting for it to be available at ${res[0]}`))
+                            .tap(res => console.log(`Uploaded challenge file, polling until it is available at ${res[0]}`))
                             .spread(pollUntilDeployed)
                             .asCallback(cb);
                     },
@@ -168,12 +160,9 @@ module.exports = (options) => {
                         return (deleteChallengesPromise = deleteChallenges(key, repo)).finally(() => cb(null));
                     }
                 });
-            }).then((cert) => {
-                if (options.auto) {
-                    return updatePagesDomainsWithCertificates(repo, cert).return(cert);
-                }
-                return cert;
-            }).then(cert => xtend(cert, {
+            }).then(cert =>
+                options.production ? updatePagesDomainsWithCertificates(repo, cert) : cert
+            ).then(cert => xtend(cert, {
                 domains: options.domain,
                 repository: options.repository,
                 pagesUrl: `${gitlabBaseUrl}/${options.repository}/pages`,
