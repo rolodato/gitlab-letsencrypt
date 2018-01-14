@@ -45,31 +45,6 @@ Try it out: https://example.com https://www.example.com (GitLab might take a few
 This certificate expires on Sat Apr 14 2018 03:09:06 GMT+0100 (BST). You will need to run gitlab-le again at some time before this date.
 ```
 
-$ gitlab-le --jekyll --path / --email example@example.com --repository example/example.gitlab.io --token ... --domain example.com www.example.com
-By using Let's Encrypt, you are agreeing to the TOS at https://letsencrypt.org/documents/LE-SA-v1.0.1-July-27-2015.pdf
-Uploaded challenge file, waiting for it to be available at http://example.com/.well-known/acme-challenge/lLqa_7sLPQzz102c2KIc3pqMevUyM_Ru92whx6w1C-4
-Could not find challenge file. Retrying in 15s...
-Could not find challenge file. Retrying in 30s...
-Could not find challenge file. Retrying in 1m...
-
-Success! Go to https://gitlab.com/example/example.gitlab.io/pages and create/re-create domain(s) with the following settings:
-
-Domain(s): example.com, www.example.com
-
-Certificate (PEM):
------BEGIN CERTIFICATE-----
-...
------END CERTIFICATE-----
-
-Key (PEM):
------BEGIN RSA PRIVATE KEY-----
-...
------END RSA PRIVATE KEY-----
-
-This certificate expires on Sat Aug 26 2017 18:27:00 GMT-0300 (-03). You will need to repeat these steps at some time before this date.
-If you'd like to improve this situation, please join the discussion at https://gitlab.com/gitlab-org/gitlab-ce/issues/28996
-```
-
 ## How it works
 
 `gitlab-le` uses the [ACME HTTP Challenge](https://tools.ietf.org/html/draft-ietf-acme-acme-09#section-8.3) to prove ownership of a given set of domains.
