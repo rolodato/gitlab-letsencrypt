@@ -22,7 +22,7 @@
     "eslint": "3.19.0"
   },
   "scripts": {
-    "test": "eslint . && cd test && node invalid-token.js && node jekyll.js && node index.js"
+    "test": "eslint . && cd test &&  node jekyll.js && node index.js"
   },
   "repository": {
     "type": "git",
@@ -39,6 +39,6 @@
   },
   "homepage": "https://github.com/rolodato/gitlab-letsencrypt#readme",
   "engines": {
-    "node": ">=6.3.0"
+    "node": ">=8.0.0"
   }
 }

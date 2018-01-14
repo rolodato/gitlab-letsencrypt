@@ -7,13 +7,14 @@ module.exports = yargs
     .option('domain', {
         describe: 'Domain(s) that the cert will be issued for (separated by spaces)',
         type: 'array',
-        demandOption: true
+        demandOption: true,
+        alias: 'domains'
     }).option('email', {
         describe: 'Email address for your Let\'s Encrypt account',
         type: 'string',
         demandOption: true
     }).option('repository', {
-        describe: 'GitLab pages repository identifier',
+        describe: 'GitLab repository URL',
         type: 'string',
         demandOption: true
     }).option('token', {
@@ -28,12 +29,12 @@ module.exports = yargs
         describe: 'Absolute path in your repository where challenge files will be uploaded. Your .gitlab-ci.yml file must be configured to serve the contents of this directory under http://YOUR_SITE/.well-known/acme-challenge',
         type: 'string',
         default: '/public/.well-known/acme-challenge'
-    }).option('staging', {
-        describe: 'Use Let\'s Encrypt\'s staging environment (does not issue real certificates - use only for testing)',
+    }).option('production', {
+        describe: 'Obtain a real certificate instead of a dummy one and configure your repository to use it',
         type: 'boolean',
         default: false
-    }).example('$0 --domain example.com www.example.com --email rolodato@example.com --repository foo/example.gitlab.io --token abc123', 'Simple build where all files are served from public/ inside your repository')
-    .example('$0 --jekyll --path / --domain example.com --email rolodato@example.com --repository foo/example.gitlab.io --token abc123', 'Jekyll website that serves all valid files in your repository\'s root directory')
+    }).example('$0 --domain example.com www.example.com --email rolodato@example.com --repository https://gitlab.com/foo/example.gitlab.io --token abc123', 'Simple build where all files are served from public/ inside your repository')
+    .example('$0 --jekyll --path / --domain example.com --email rolodato@example.com --repository https://gitlab.example.com/foo/myrepo --token abc123', 'Jekyll website that serves all valid files in your repository\'s root directory')
     .wrap(yargs.terminalWidth())
     .check(argv => {
         const empty = Object.keys(argv).filter(key => key !== '_' && argv[key].length == 0);
