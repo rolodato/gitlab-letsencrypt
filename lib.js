@@ -160,7 +160,7 @@ module.exports = (options) => {
                         return (deleteChallengesPromise = deleteChallenges(key, repo)).finally(() => cb(null));
                     }
                 });
-            }).then(cert =>
+            }).tap(cert =>
                 options.production ? updatePagesDomainsWithCertificates(repo, cert) : cert
             ).then(cert => xtend(cert, {
                 domains: options.domain,
