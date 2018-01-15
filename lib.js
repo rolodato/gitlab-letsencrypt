@@ -6,6 +6,7 @@ const ms = require('ms');
 const request = require('request-promise');
 const xtend = require('xtend');
 const pki = require('node-forge').pki;
+const moment = require('moment');
 const path = require('path');
 const { URL } = require('url');
 
@@ -101,8 +102,30 @@ module.exports = (options) => {
 
     const createPagesDomains = (repo) => {
         return listPagesDomains(repo).then(pagesDomains => {
+
+            let noDomainNeedsRenewal = true;
+
             // names of existing domains in gitlab pages
             const pagesDomainsNames = pagesDomains.map(pagesDomain => {
+                if (options.domain.includes(pagesDomain.domain) && noDomainNeedsRenewal) {
+                    // no certificate, so we need to generate one
+                    if (!pagesDomain.certificate) {
+                        noDomainNeedsRenewal = false;
+                    } else {
+                        // certificate expired, we need to generate one
+                        if (pagesDomain.certificate.expired) {
+                            noDomainNeedsRenewal = false;
+                        } else {
+                            const certificate = pki.certificateFromPem(pagesDomain.certificate.certificate);
+                            const validUntil = moment(certificate.validity.notAfter);
+                            const diff = validUntil.diff(moment(), 'days');
+                            // certificate will expire soon, so we need to generate one
+                            if (options.expiration > diff) {
+                                noDomainNeedsRenewal = false;
+                            }
+                        }
+                    }
+                }
                 return pagesDomain.domain;
             });
 
@@ -110,6 +133,10 @@ module.exports = (options) => {
             const domainsToCreate = options.domain.filter(domain => {
                 return !pagesDomainsNames.includes(domain);
             });
+
+            if (domainsToCreate.length === 0 && noDomainNeedsRenewal) {
+                return Promise.reject(`All domains ${options.domain.join(', ')} have a valid certificate (expiration in more than ${options.expiration} days)`);
+            }
 
             // promises to create the new domains
             const promises = domainsToCreate.map(domain => {
