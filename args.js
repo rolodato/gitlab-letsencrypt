@@ -4,6 +4,7 @@ const yargs = require('yargs');
 module.exports = yargs
     .strict()
     .help()
+    .version(() => require('./package.json').version)
     .option('domain', {
         describe: 'Domain(s) that the cert will be issued for (separated by spaces)',
         type: 'array',
