@@ -1,6 +1,6 @@
 {
   "name": "gitlab-letsencrypt",
-  "version": "3.0.0",
+  "version": "3.1.0",
   "description": "Generate a Let's Encrypt certificate for GitLab.com hosted pages",
   "main": "index.js",
   "bin": {
