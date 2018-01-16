@@ -1,4 +1,5 @@
-# gitlab-letsencrypt [![Build Status](https://travis-ci.org/rolodato/gitlab-letsencrypt.svg?branch=master)](https://travis-ci.org/rolodato/gitlab-letsencrypt)
+# gitlab-letsencrypt [![Build Status](https://travis-ci.org/rolodato/gitlab-letsencrypt.svg?branch=master)](https://travis-ci.org/rolodato/gitlab-letsencrypt) [![Docker Automated build](https://img.shields.io/docker/automated/rolodato/gitlab-letsencrypt.svg)](https://hub.docker.com/r/rolodato/gitlab-letsencrypt/) [![Docker Pulls](https://img.shields.io/docker/pulls/rolodato/gitlab-letsencrypt.svg)](https://hub.docker.com/r/rolodato/gitlab-letsencrypt/)
+
 
 Command-line tool to generate a [Let's Encrypt](https://letsencrypt.org) certificate for use with [GitLab Pages](https://pages.gitlab.io/).
 
