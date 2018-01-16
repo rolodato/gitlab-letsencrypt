@@ -29,7 +29,7 @@ module.exports = yargs
     }).option('expiration', {
         describe: 'Only generate a certificate if all existing certificates will expire in less than the given days.',
         type: 'number',
-        default: 15
+        default: 31
     }).option('path', {
         describe: 'Absolute path in your repository where challenge files will be uploaded. Your .gitlab-ci.yml file must be configured to serve the contents of this directory under http://YOUR_SITE/.well-known/acme-challenge',
         type: 'string',
