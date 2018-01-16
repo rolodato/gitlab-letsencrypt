@@ -1,6 +1,7 @@
 FROM node:9.4-alpine
 
 LABEL \
+      io.whalebrew.name="gitlab-le" \
       maintainer="Tobias L. Maier <me@tobiasmaier.info>" \
       org.label-schema.description="CLI Tool to easily generate a Let's Encrypt certificate for GitLab.com hosted pages" \
       org.label-schema.docker.cmd.help="docker container run --rm rolodato/gitlab-letsencrypt --help" \
