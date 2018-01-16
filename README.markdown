@@ -74,7 +74,8 @@ ssl:renew certificate:
   image:
     name: rolodato/gitlab-letsencrypt
     entrypoint: ["/bin/sh", "-c"]
-  stage: deploy
+  variables:
+    GIT_STRATEGY: none
   before_script: []
   script: |-
     gitlab-le \
@@ -86,12 +87,15 @@ ssl:renew certificate:
       --repository $CI_PROJECT_URL \
       --token $GITLAB_TOKEN
   only:
-  - schedules
+    - schedules
 ```
 
 Add the following variables to your GitLab project: `LETS_ENCRYPT_EMAIL` and your secret `GITLAB_TOKEN`.
 
-Schedule then a new pipeline to run for example every month. See <https://docs.gitlab.com/ce/user/project/pipelines/schedules.html> for details
+Consider to add `except: [schedules]` to all other jobs in your `.gitlab-ci.yml` file, as they will be anyway triggered when gitlab-le adds and removes the ACME challenge.
+
+Schedule then a new pipeline to run for example every month.
+See <https://docs.gitlab.com/ce/user/project/pipelines/schedules.html> for details.
 
 ## How it works
 
