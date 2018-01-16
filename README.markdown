@@ -45,6 +45,53 @@ Try it out: https://example.com https://www.example.com (GitLab might take a few
 This certificate expires on Sat Apr 14 2018 03:09:06 GMT+0100 (BST). You will need to run gitlab-le again at some time before this date.
 ```
 
+## Docker image
+
+There is also a [Docker image](https://hub.docker.com/r/rolodato/gitlab-letsencrypt/) available.
+This means the Command-line tool can be used without installing all the dependencies required to run the application.
+
+Example:
+```text
+docker container run --rm -it rolodato/gitlab-letsencrypt \
+  --domain example.com \
+  --email me@example.com \
+  --repository https://gitlab.com/my/repo \
+  --jekyll \
+  --path /acme-challenge \
+  --token $GITLAB_TOKEN
+```
+
+## Automatic renewal of the certificate
+
+Let's Encrypt certificates have a comparatively short life-span.
+They need to be renewed regularly.
+
+Use the [GitLab Pipeline Schedule](https://docs.gitlab.com/ce/user/project/pipelines/schedules.html) feature to automate the renewal process.
+
+```yaml
+ssl:renew certificate:
+  image:
+    name: rolodato/gitlab-letsencrypt
+    entrypoint: ["/bin/sh", "-c"]
+  stage: deploy
+  before_script: []
+  script: |-
+    gitlab-le \
+      --domain example.com \
+      --email $LETS_ENCRYPT_EMAIL \
+      --jekyll \
+      --path /acme-challenge \
+      --production \
+      --repository $CI_PROJECT_URL \
+      --token $GITLAB_TOKEN
+  only:
+  - schedules
+```
+
+Add the following variables to your GitLab project: `LETS_ENCRYPT_EMAIL` and your secret `GITLAB_TOKEN`.
+
+Schedule then a new pipeline to run for example every month. See <https://docs.gitlab.com/ce/user/project/pipelines/schedules.html> for details
+
 ## How it works
 
 `gitlab-le` uses the [ACME HTTP Challenge](https://tools.ietf.org/html/draft-ietf-acme-acme-09#section-8.3) to prove ownership of a given set of domains.
