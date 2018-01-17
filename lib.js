@@ -10,6 +10,8 @@ const moment = require('moment');
 const path = require('path');
 const { URL } = require('url');
 
+const EXPIRATION_IN_DAYS = 30;
+
 const generateRsa = () => RSA.generateKeypairAsync(2048, 65537, {});
 
 const pollUntilDeployed = (url, expectedContent, timeoutMs = 30 * 1000, retries = 10) => {
@@ -100,32 +102,29 @@ module.exports = (options) => {
         });
     };
 
+    const hasValidCertificate = (pagesDomain) => {
+        if (options.domain.includes(pagesDomain.domain)) {
+            if (pagesDomain.certificate) {
+                if (!pagesDomain.certificate.expired) {
+                    const certificate = pki.certificateFromPem(pagesDomain.certificate.certificate);
+                    const validUntil = moment(certificate.validity.notAfter);
+                    const diff = validUntil.diff(moment(), 'days');
+                    if (diff > EXPIRATION_IN_DAYS) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+        // We do not care about the current domain, as we did not give it in the arguments
+        return true;
+    };
+
     const createPagesDomains = (repo) => {
         return listPagesDomains(repo).then(pagesDomains => {
 
-            let noDomainNeedsRenewal = true;
-
             // names of existing domains in gitlab pages
             const pagesDomainsNames = pagesDomains.map(pagesDomain => {
-                if (options.domain.includes(pagesDomain.domain) && noDomainNeedsRenewal) {
-                    // no certificate, so we need to generate one
-                    if (!pagesDomain.certificate) {
-                        noDomainNeedsRenewal = false;
-                    } else {
-                        // certificate expired, we need to generate one
-                        if (pagesDomain.certificate.expired) {
-                            noDomainNeedsRenewal = false;
-                        } else {
-                            const certificate = pki.certificateFromPem(pagesDomain.certificate.certificate);
-                            const validUntil = moment(certificate.validity.notAfter);
-                            const diff = validUntil.diff(moment(), 'days');
-                            // certificate will expire soon, so we need to generate one
-                            if (options.expiration > diff) {
-                                noDomainNeedsRenewal = false;
-                            }
-                        }
-                    }
-                }
                 return pagesDomain.domain;
             });
 
@@ -134,8 +133,12 @@ module.exports = (options) => {
                 return !pagesDomainsNames.includes(domain);
             });
 
-            if (domainsToCreate.length === 0 && noDomainNeedsRenewal) {
-                return Promise.reject(`All domains ${options.domain.join(', ')} have a valid certificate (expiration in more than ${options.expiration} days)`);
+            const needsNoRenewal =
+                domainsToCreate.length === 0 &&
+                pagesDomains.every(hasValidCertificate);
+
+            if (needsNoRenewal) {
+                return Promise.reject(`All domains (${options.domain.join(', ')}) have a valid certificate (expiration in more than ${EXPIRATION_IN_DAYS} days)`);
             }
 
             // promises to create the new domains
