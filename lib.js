@@ -139,7 +139,8 @@ module.exports = (options) => {
                 pagesDomains.every(hasValidCertificate);
 
             if (needsNoRenewal) {
-                return Promise.reject(`All domains (${options.domain.join(', ')}) have a valid certificate (expiration in more than ${EXPIRATION_IN_DAYS} days)`);
+                console.log(`All domains (${options.domain.join(', ')}) have a valid certificate (expiration in more than ${EXPIRATION_IN_DAYS} days)`);
+                process.exit(0);
             }
 
             // promises to create the new domains
