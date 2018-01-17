@@ -26,10 +26,10 @@ module.exports = yargs
         describe: 'Upload challenge files with a Jekyll-compatible YAML front matter (see https://jekyllrb.com/docs/frontmatter)',
         type: 'boolean',
         default: false
-    }).option('expiration', {
-        describe: 'Only generate a certificate if all existing certificates will expire in less than the given days.',
-        type: 'number',
-        default: 31
+    }).option('force-renewal', {
+        describe: 'Force renewal of certificate, even if it expires in more than 30 days',
+        type: 'boolean',
+        default: false
     }).option('path', {
         describe: 'Absolute path in your repository where challenge files will be uploaded. Your .gitlab-ci.yml file must be configured to serve the contents of this directory under http://YOUR_SITE/.well-known/acme-challenge',
         type: 'string',

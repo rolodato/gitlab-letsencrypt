@@ -134,6 +134,7 @@ module.exports = (options) => {
             });
 
             const needsNoRenewal =
+                !options.forceRenewal &&
                 domainsToCreate.length === 0 &&
                 pagesDomains.every(hasValidCertificate);
 
