@@ -1,4 +1,5 @@
-# gitlab-letsencrypt [![Build Status](https://travis-ci.org/rolodato/gitlab-letsencrypt.svg?branch=master)](https://travis-ci.org/rolodato/gitlab-letsencrypt)
+# gitlab-letsencrypt [![Build Status](https://travis-ci.org/rolodato/gitlab-letsencrypt.svg?branch=master)](https://travis-ci.org/rolodato/gitlab-letsencrypt) [![Docker Automated build](https://img.shields.io/docker/automated/rolodato/gitlab-letsencrypt.svg)](https://hub.docker.com/r/rolodato/gitlab-letsencrypt/) [![Docker Pulls](https://img.shields.io/docker/pulls/rolodato/gitlab-letsencrypt.svg)](https://hub.docker.com/r/rolodato/gitlab-letsencrypt/) [![GitHub stars](https://img.shields.io/github/stars/rolodato/gitlab-letsencrypt.svg?style=social&label=Star)](https://github.com/rolodato/gitlab-letsencrypt)
+
 
 Command-line tool to generate a [Let's Encrypt](https://letsencrypt.org) certificate for use with [GitLab Pages](https://pages.gitlab.io/).
 
@@ -44,6 +45,57 @@ Success! Your GitLab page has been configured to use an HTTPS certificate obtain
 Try it out: https://example.com https://www.example.com (GitLab might take a few minutes to start using your certificate for the first time)
 This certificate expires on Sat Apr 14 2018 03:09:06 GMT+0100 (BST). You will need to run gitlab-le again at some time before this date.
 ```
+
+## Docker image
+
+There is also a [Docker image](https://hub.docker.com/r/rolodato/gitlab-letsencrypt/) available.
+This means the Command-line tool can be used without installing all the dependencies required to run the application.
+
+Example:
+```text
+docker container run --rm -it rolodato/gitlab-letsencrypt \
+  --domain example.com \
+  --email me@example.com \
+  --repository https://gitlab.com/my/repo \
+  --jekyll \
+  --path /acme-challenge \
+  --token $GITLAB_TOKEN
+```
+
+## Automatic renewal of the certificate
+
+Let's Encrypt certificates have a comparatively short life-span.
+They need to be renewed regularly.
+
+Use the [GitLab Pipeline Schedule](https://docs.gitlab.com/ce/user/project/pipelines/schedules.html) feature to automate the renewal process.
+
+```yaml
+ssl:renew certificate:
+  image:
+    name: rolodato/gitlab-letsencrypt
+    entrypoint: ["/bin/sh", "-c"]
+  variables:
+    GIT_STRATEGY: none
+  before_script: []
+  script: |-
+    gitlab-le \
+      --domain example.com \
+      --email $LETS_ENCRYPT_EMAIL \
+      --jekyll \
+      --path /acme-challenge \
+      --production \
+      --repository $CI_PROJECT_URL \
+      --token $GITLAB_TOKEN
+  only:
+    - schedules
+```
+
+Add the following variables to your GitLab project: `LETS_ENCRYPT_EMAIL` and your secret `GITLAB_TOKEN`.
+
+Consider to add `except: [schedules]` to all other jobs in your `.gitlab-ci.yml` file, as they will be anyway triggered when gitlab-le adds and removes the ACME challenge.
+
+Schedule then a new pipeline to run for example every month.
+See <https://docs.gitlab.com/ce/user/project/pipelines/schedules.html> for details.
 
 ## How it works
 
