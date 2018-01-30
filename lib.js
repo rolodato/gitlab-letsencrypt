@@ -6,11 +6,11 @@ const ms = require('ms');
 const request = require('request-promise');
 const xtend = require('xtend');
 const pki = require('node-forge').pki;
-const moment = require('moment');
 const path = require('path');
 const { URL } = require('url');
 
-const EXPIRATION_IN_DAYS = 30;
+const DEFAULT_EXPIRATION = '30 days';
+const DEFAULT_EXPIRATION_IN_MS = ms(DEFAULT_EXPIRATION);
 
 const generateRsa = () => RSA.generateKeypairAsync(2048, 65537, {});
 
@@ -106,12 +106,9 @@ module.exports = (options) => {
         if (options.domain.includes(pagesDomain.domain)) {
             if (pagesDomain.certificate) {
                 if (!pagesDomain.certificate.expired) {
-                    const certificate = pki.certificateFromPem(pagesDomain.certificate.certificate);
-                    const validUntil = moment(certificate.validity.notAfter);
-                    const diff = validUntil.diff(moment(), 'days');
-                    if (diff > EXPIRATION_IN_DAYS) {
-                        return true;
-                    }
+                    const validUntil = pki.certificateFromPem(pagesDomain.certificate.certificate).validity.notAfter;
+                    const expiresInMS = validUntil.getTime() - new Date().getTime();
+                    return expiresInMS > DEFAULT_EXPIRATION_IN_MS;
                 }
             }
             return false;
@@ -139,7 +136,7 @@ module.exports = (options) => {
                 pagesDomains.every(hasValidCertificate);
 
             if (needsNoRenewal) {
-                console.log(`All domains (${options.domain.join(', ')}) have a valid certificate (expiration in more than ${EXPIRATION_IN_DAYS} days)`);
+                console.log(`All domains (${options.domain.join(', ')}) have a valid certificate (expiration in more than ${DEFAULT_EXPIRATION})`);
                 process.exit(0);
             }
 
