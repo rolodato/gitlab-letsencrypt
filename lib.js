@@ -138,7 +138,7 @@ module.exports = (options) => {
             });
 
             return Promise.all(promises)
-                .then(() => needsRenewal);
+                .return(needsRenewal);
         });
     };
 
