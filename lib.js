@@ -103,18 +103,12 @@ module.exports = (options) => {
     };
 
     const hasValidCertificate = (pagesDomain) => {
-        if (options.domain.includes(pagesDomain.domain)) {
-            if (pagesDomain.certificate) {
-                if (!pagesDomain.certificate.expired) {
-                    const validUntil = pki.certificateFromPem(pagesDomain.certificate.certificate).validity.notAfter;
-                    const expiresInMS = validUntil.getTime() - new Date().getTime();
-                    return expiresInMS > DEFAULT_EXPIRATION_IN_MS;
-                }
-            }
-            return false;
+        if (pagesDomain.certificate && !pagesDomain.certificate.expired) {
+            const validUntil = pki.certificateFromPem(pagesDomain.certificate.certificate).validity.notAfter;
+            const expiresInMS = validUntil.getTime() - new Date().getTime();
+            return expiresInMS > DEFAULT_EXPIRATION_IN_MS;
         }
-        // We do not care about the current domain, as we did not give it in the arguments
-        return true;
+        return false;
     };
 
     const createPagesDomains = (repo) => {
@@ -130,10 +124,14 @@ module.exports = (options) => {
                 return !pagesDomainsNames.includes(domain);
             });
 
+            const domainsToCheck = pagesDomains.filter(pagesDomain => {
+                return options.domain.includes(pagesDomain.domain);
+            });
+
             const needsNoRenewal =
                 !options.forceRenewal &&
                 domainsToCreate.length === 0 &&
-                pagesDomains.every(hasValidCertificate);
+                domainsToCheck.every(hasValidCertificate);
 
             if (needsNoRenewal) {
                 console.log(`All domains (${options.domain.join(', ')}) have a valid certificate (expiration in more than ${DEFAULT_EXPIRATION})`);
