@@ -9,8 +9,7 @@ const pki = require('node-forge').pki;
 const path = require('path');
 const { URL } = require('url');
 
-const DEFAULT_EXPIRATION = '30 days';
-const DEFAULT_EXPIRATION_IN_MS = ms(DEFAULT_EXPIRATION);
+const DEFAULT_EXPIRATION_IN_MS = ms('30 days');
 
 const generateRsa = () => RSA.generateKeypairAsync(2048, 65537, {});
 
@@ -124,26 +123,22 @@ module.exports = (options) => {
                 return !pagesDomainsNames.includes(domain);
             });
 
+            // existing domains, which's certificates need to be checked
             const domainsToCheck = pagesDomains.filter(pagesDomain => {
                 return options.domain.includes(pagesDomain.domain);
             });
 
-            const needsNoRenewal =
-                !options.forceRenewal &&
-                domainsToCreate.length === 0 &&
-                domainsToCheck.every(hasValidCertificate);
-
-            if (needsNoRenewal) {
-                console.log(`All domains (${options.domain.join(', ')}) have a valid certificate (expiration in more than ${DEFAULT_EXPIRATION})`);
-                process.exit(0);
-            }
+            const needsRenewal = options.forceRenewal ||
+                domainsToCreate.length !== 0 ||
+                !domainsToCheck.every(hasValidCertificate);
 
             // promises to create the new domains
             const promises = domainsToCreate.map(domain => {
                 return createPagesDomain(repo, domain);
             });
 
-            return Promise.all(promises);
+            return Promise.all(promises)
+                .then(() => needsRenewal);
         });
     };
 
@@ -155,11 +150,10 @@ module.exports = (options) => {
         return Promise.all(promises);
     };
 
-    let deleteChallengesPromise = null;
+    const runACMEWorkflow = (repo) => {
 
-    return Promise.join(getUrls, generateRsa(), generateRsa(), getRepository(repoUrl.pathname),
-        (urls, accountKp, domainKp, repo) => {
-            return createPagesDomains(repo).then(() => {
+        return Promise.all([getUrls, generateRsa(), generateRsa()])
+            .spread((urls, accountKp, domainKp) => {
                 return ACME.registerNewAccountAsync({
                     newRegUrl: urls.newReg,
                     email: options.email,
@@ -168,32 +162,50 @@ module.exports = (options) => {
                         console.log(`By using Let's Encrypt, you are agreeing to the TOS at ${tosUrl}`);
                         cb(null, true);
                     }
+                }).then(() => {
+
+                    let deleteChallengesPromise = null;
+
+                    return ACME.getCertificateAsync({
+                        newAuthzUrl: urls.newAuthz,
+                        newCertUrl: urls.newCert,
+                        domainKeypair: domainKp,
+                        accountKeypair: accountKp,
+                        domains: options.domain,
+                        setChallenge: (hostname, key, value, cb) => {
+                            return Promise.resolve(deleteChallengesPromise)
+                                .then(() => uploadChallenge(key, value, repo, hostname))
+                                .tap(res => console.log(`Uploaded challenge file, polling until it is available at ${res[0]}`))
+                                .spread(pollUntilDeployed)
+                                .asCallback(cb);
+                        },
+                        removeChallenge: (hostname, key, cb) => {
+                            return (deleteChallengesPromise = deleteChallenges(key, repo)).finally(() => cb(null));
+                        }
+                    });
                 });
-            }).then(() => {
-                return ACME.getCertificateAsync({
-                    newAuthzUrl: urls.newAuthz,
-                    newCertUrl: urls.newCert,
-                    domainKeypair: domainKp,
-                    accountKeypair: accountKp,
-                    domains: options.domain,
-                    setChallenge: (hostname, key, value, cb) => {
-                        return Promise.resolve(deleteChallengesPromise)
-                            .then(() => uploadChallenge(key, value, repo, hostname))
-                            .tap(res => console.log(`Uploaded challenge file, polling until it is available at ${res[0]}`))
-                            .spread(pollUntilDeployed)
-                            .asCallback(cb);
-                    },
-                    removeChallenge: (hostname, key, cb) => {
-                        return (deleteChallengesPromise = deleteChallenges(key, repo)).finally(() => cb(null));
-                    }
-                });
-            }).tap(cert =>
-                options.production ? updatePagesDomainsWithCertificates(repo, cert) : cert
-            ).then(cert => xtend(cert, {
+            })
+            .then(cert => options.production ? updatePagesDomainsWithCertificates(repo, cert).return(cert) : cert);
+    };
+
+    return getRepository(repoUrl.pathname)
+        .then((repo) => Promise.all([repo, createPagesDomains(repo)]))
+        .spread((repo, needsRenewal) => {
+
+            const result = {
                 domains: options.domain,
                 repository: options.repository,
                 pagesUrl: `${gitlabBaseUrl}/${options.repository}/pages`,
-                notAfter: pki.certificateFromPem(cert.cert).validity.notAfter
-            }));
+                needsRenewal: needsRenewal,
+            };
+
+            if (needsRenewal) {
+                return runACMEWorkflow(repo)
+                    .then(cert => xtend(cert, result, {
+                        notAfter: pki.certificateFromPem(cert.cert).validity.notAfter
+                    }));
+            }
+
+            return result;
         });
 };
