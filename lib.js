@@ -49,7 +49,7 @@ module.exports = (options) => {
 
     const uploadChallenge = (key, value, repo, domain) => {
         const challengeContent = options.jekyll ?
-                `---\nlayout: null\npermalink: /.well-known/acme-challenge/${key}\n---\n${value}` : value;
+                `---\nlayout: null\npermalink: /.well-known/acme-challenge/${key}/\n---\n${value}` : value;
         // Need to bluebird-ify to use .asCallback()
         const filePath = encodeURIComponent(path.posix.resolve('/', options.path, key));
         return Promise.resolve(gitlabRequest.post({
