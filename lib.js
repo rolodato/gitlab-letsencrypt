@@ -51,7 +51,7 @@ module.exports = (options) => {
         const challengeContent = options.jekyll ?
                 `---\nlayout: null\npermalink: /.well-known/acme-challenge/${key}/\n---\n${value}` : value;
         // Need to bluebird-ify to use .asCallback()
-        const filePath = encodeURIComponent(path.posix.resolve('/', options.path, key));
+        const filePath = options.jekyll ? "letsencrypt.html" : encodeURIComponent(path.posix.resolve('/', options.path, key));
         return Promise.resolve(gitlabRequest.post({
             url: `/projects/${repo.id}/repository/files/${filePath}`,
             body: {
@@ -64,7 +64,7 @@ module.exports = (options) => {
     };
 
     const deleteChallenges = (key, repo) => {
-        const filePath = encodeURIComponent(path.posix.resolve('/', options.path, key));
+        const filePath = options.jekyll ? "letsencrypt.html" : encodeURIComponent(path.posix.resolve('/', options.path, key));
         return Promise.resolve(gitlabRequest.delete({
             url: `/projects/${repo.id}/repository/files/${filePath}`,
             body: {
