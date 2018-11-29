@@ -47,7 +47,7 @@ module.exports = (options) => {
         });
     };
 
-    const uploadChallenge = (key, value, repo, domain) => {
+    const uploadChallenge = (key, value, repo, domain, branch) => {
         const challengeContent = options.jekyll ?
                 `---\nlayout: null\npermalink: /.well-known/acme-challenge/${key}\n---\n${value}` : value;
         // Need to bluebird-ify to use .asCallback()
@@ -56,20 +56,20 @@ module.exports = (options) => {
             url: `/projects/${repo.id}/repository/files/${filePath}`,
             body: {
                 commit_message: 'Automated Let\'s Encrypt renewal: add challenge',
-                branch: repo.default_branch,
+                branch: branch || repo.default_branch,
                 content: challengeContent,
                 author_name: 'gitlab-le'
             }
         })).return([`http://${domain}/.well-known/acme-challenge/${key}`, value]);
     };
 
-    const deleteChallenges = (key, repo) => {
+    const deleteChallenges = (key, repo, branch) => {
         const filePath = encodeURIComponent(path.posix.resolve('/', options.path, key));
         return Promise.resolve(gitlabRequest.delete({
             url: `/projects/${repo.id}/repository/files/${filePath}`,
             body: {
                 commit_message: 'Automated Let\'s Encrypt renewal: remove challenge',
-                branch: repo.default_branch,
+                branch: branch || repo.default_branch,
                 author_name: 'gitlab-le'
             }
         }));
@@ -151,13 +151,13 @@ module.exports = (options) => {
                     domains: options.domain,
                     setChallenge: (hostname, key, value, cb) => {
                         return Promise.resolve(deleteChallengesPromise)
-                            .then(() => uploadChallenge(key, value, repo, hostname))
+                            .then(() => uploadChallenge(key, value, repo, hostname, options.branch))
                             .tap(res => console.log(`Uploaded challenge file, polling until it is available at ${res[0]}`))
                             .spread(pollUntilDeployed)
                             .asCallback(cb);
                     },
                     removeChallenge: (hostname, key, cb) => {
-                        return (deleteChallengesPromise = deleteChallenges(key, repo)).finally(() => cb(null));
+                        return (deleteChallengesPromise = deleteChallenges(key, repo, options.branch)).finally(() => cb(null));
                     }
                 });
             }).tap(cert =>
