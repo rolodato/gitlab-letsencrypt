@@ -34,11 +34,15 @@ module.exports = yargs
         describe: 'Obtain a real certificate instead of a dummy one and configure your repository to use it',
         type: 'boolean',
         default: false
+    }).option('branch', {
+        describe: 'Select the branch where the challenge files should be uploaded.',
+        type: 'string',
+        default: ''
     }).example('$0 --domain example.com www.example.com --email rolodato@example.com --repository https://gitlab.com/foo/example.gitlab.io --token abc123', 'Simple build where all files are served from public/ inside your repository')
     .example('$0 --jekyll --path / --domain example.com --email rolodato@example.com --repository https://gitlab.example.com/foo/myrepo --token abc123', 'Jekyll website that serves all valid files in your repository\'s root directory')
     .wrap(yargs.terminalWidth())
     .check(argv => {
-        const empty = Object.keys(argv).filter(key => key !== '_' && argv[key].length == 0);
+        const empty = Object.keys(argv).filter(key => key !== '_' && key !== 'branch' && argv[key].length == 0);
         if (empty.length > 0) {
             console.error(`Missing required arguments: ${empty.join(', ')}`);
             process.exit(1);

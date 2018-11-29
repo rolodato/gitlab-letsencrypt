@@ -22,6 +22,7 @@ gitlab-le \
 --production                                            `# OPTIONAL - Obtain a real certificate instead of a dummy one and configure your repository to use it`
 --path                                                  `# OPTIONAL - Absolute path in your repository where challenge files should be uploaded`
 --jekyll                                                `# OPTIONAL - Upload challenge files with a Jekyll-compatible YAML front matter` \
+--branch                                                `# OPTIONAL - Upload challenge files to this branch, default is the main branch of the repository` \
 ```
 
 See `gitlab-le --help` for more details.
