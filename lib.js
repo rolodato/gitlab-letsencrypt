@@ -11,8 +11,8 @@ const { URL } = require('url');
 
 const generateRsa = () => RSA.generateKeypairAsync(2048, 65537, {});
 
-const pollUntilDeployed = (url, expectedContent, timeoutMs = 30 * 1000, retries = 10) => {
-    if (retries > 0) {
+const pollUntilDeployed = (url, expectedContent, timeoutMs = 30 * 1000, attempts = 30) => {
+    if (attempts > 0) {
         return request.get({
             url: url,
             simple: false // don't reject on 404
@@ -23,7 +23,7 @@ const pollUntilDeployed = (url, expectedContent, timeoutMs = 30 * 1000, retries 
                 // GitLab CI usually takes 50-80 seconds to build
                 console.log(`Could not find challenge file. Retrying in ${ms(timeoutMs)}...`);
                 return Promise.delay(timeoutMs).then(() =>
-                    pollUntilDeployed(url, expectedContent, timeoutMs * 2, retries - 1));
+                    pollUntilDeployed(url, expectedContent, timeoutMs, attempts - 1));
             }
         });
     } else {
