@@ -8,7 +8,7 @@
   },
   "dependencies": {
     "bluebird": "3.5.0",
-    "le-acme-core": "https://github.com/rolodato/le-acme-core#semver:2.1.0",
+    "le-acme-core": "^2.1.4",
     "ms": "2.0.0",
     "node-forge": "0.7.1",
     "request": "2.81.0",
